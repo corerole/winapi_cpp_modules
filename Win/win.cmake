@@ -1,7 +1,7 @@
 set(WIN_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 set(FLAGS_URL "https://github.com/corerole/Flags_cpp_module")
-message("This repero depend from \'${FLAGS_URL}\'")
+message("This repo depend from \'${FLAGS_URL}\'")
 
 target_sources(
 	${PROJECT_NAME} PUBLIC
