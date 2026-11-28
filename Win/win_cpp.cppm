@@ -2,7 +2,7 @@
 
 export module win_cpp;
 import std;
-import AtomicFlagMutex;
+// import AtomicFlagMutex;
 import win;
 import win_enums;
 
@@ -61,6 +61,16 @@ export namespace win_cpp {
 	struct RawInputMouseData;
 	struct RawInputKeyboardData;
 	struct RawInputHIDData;
+
+	struct PaintContext {
+		using type = win::t::HDC;
+		private:
+			type context;
+		public:
+			PaintContext(type ctx) : context(ctx) {};
+		public:
+			explicit operator type() const { return context; }
+	};
 
 	struct WindowsKeyData {
 		unsigned repeatCount;
@@ -228,7 +238,7 @@ export namespace win_cpp {
 	using WM_MOUSEHWHEEL_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
 	using WM_MOUSELAST_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
 	using WM_MOUSELEAVE_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
-	using WM_MOUSEMOVE_callback_T = std::function<win_cpp::window_proc_callback_result_type(const std::pair<short, short>&, win_cpp::MouseKeysFlags)>;
+	using WM_MOUSEMOVE_callback_T = std::function<win_cpp::window_proc_callback_result_type(std::pair<short, short>, win_cpp::MouseKeysFlags)>;
 	using WM_MOUSEWHEEL_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
 	using WM_MOVE_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
 	using WM_MOVING_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
@@ -261,7 +271,7 @@ export namespace win_cpp {
 	using WM_NOTIFY_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
 	using WM_NOTIFYFORMAT_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
 	using WM_NULL_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
-	using WM_PAINT_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
+	using WM_PAINT_callback_T = std::function<win_cpp::window_proc_callback_result_type(win_cpp::PaintContext ctx, const win_cpp::Rect& rect)>;
 	using WM_PAINTCLIPBOARD_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
 	using WM_PAINTICON_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
 	using WM_PALETTECHANGED_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
@@ -351,6 +361,7 @@ export namespace win_cpp {
 	using WM_CHOOSEFONT_SETFLAGS_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
 	using WM_CHOOSEFONT_SETLOGFONT_callback_T = std::function<win_cpp::window_proc_callback_result_type()>;
 
+	using AtomicFlagMutex = std::mutex;
 	struct CallbackHolder {
 	private:
 		mutable AtomicFlagMutex mutex;
@@ -498,7 +509,7 @@ export namespace win_cpp {
 		WM_MOUSEHWHEEL_callback_T WM_MOUSEHWHEEL_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_MOUSELAST_callback_T WM_MOUSELAST_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_MOUSELEAVE_callback_T WM_MOUSELEAVE_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
-		WM_MOUSEMOVE_callback_T WM_MOUSEMOVE_callback = [](const std::pair<short, short>&, win_cpp::MouseKeysFlags) constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
+		WM_MOUSEMOVE_callback_T WM_MOUSEMOVE_callback = [](std::pair<short, short>, win_cpp::MouseKeysFlags) constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_MOUSEWHEEL_callback_T WM_MOUSEWHEEL_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_MOVE_callback_T WM_MOVE_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_MOVING_callback_T WM_MOVING_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
@@ -531,7 +542,7 @@ export namespace win_cpp {
 		WM_NOTIFY_callback_T WM_NOTIFY_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_NOTIFYFORMAT_callback_T WM_NOTIFYFORMAT_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_NULL_callback_T WM_NULL_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
-		WM_PAINT_callback_T WM_PAINT_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
+		WM_PAINT_callback_T WM_PAINT_callback = [](win_cpp::PaintContext ctx, const win_cpp::Rect& rect) constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_PAINTCLIPBOARD_callback_T WM_PAINTCLIPBOARD_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_PAINTICON_callback_T WM_PAINTICON_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_PALETTECHANGED_callback_T WM_PALETTECHANGED_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
@@ -565,7 +576,7 @@ export namespace win_cpp {
 		WM_QUERYOPEN_callback_T WM_QUERYOPEN_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_QUERYUISTATE_callback_T WM_QUERYUISTATE_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_QUEUESYNC_callback_T WM_QUEUESYNC_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
-		WM_QUIT_callback_T WM_QUIT_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
+		// WM_QUIT_callback_T WM_QUIT_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_RBUTTONDBLCLK_callback_T WM_RBUTTONDBLCLK_callback = []() constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_RBUTTONDOWN_callback_T WM_RBUTTONDOWN_callback = [](const std::pair<short, short>&, win_cpp::MouseKeysFlags) constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
 		WM_RBUTTONUP_callback_T WM_RBUTTONUP_callback = [](const std::pair<short, short>&, win_cpp::MouseKeysFlags) constexpr noexcept -> win_cpp::window_proc_callback_result_type { return std::nullopt; };
@@ -834,7 +845,7 @@ export namespace win_cpp {
 			if constexpr (MSG == win_cpp::WindowMessage::WM_QUERYOPEN) { WM_QUERYOPEN_callback = std::forward<decltype(F)>(F); return; }
 			if constexpr (MSG == win_cpp::WindowMessage::WM_QUERYUISTATE) { WM_QUERYUISTATE_callback = std::forward<decltype(F)>(F); return; }
 			if constexpr (MSG == win_cpp::WindowMessage::WM_QUEUESYNC) { WM_QUEUESYNC_callback = std::forward<decltype(F)>(F); return; }
-			if constexpr (MSG == win_cpp::WindowMessage::WM_QUIT) { WM_QUIT_callback = std::forward<decltype(F)>(F); return; }
+			if constexpr (MSG == win_cpp::WindowMessage::WM_QUIT) { throw std::runtime_error("WM_QUIT is reserved!"); } // WM_QUIT_callback = std::forward<decltype(F)>(F); return; }
 			if constexpr (MSG == win_cpp::WindowMessage::WM_RBUTTONDBLCLK) { WM_RBUTTONDBLCLK_callback = std::forward<decltype(F)>(F); return; }
 			if constexpr (MSG == win_cpp::WindowMessage::WM_RBUTTONDOWN) { WM_RBUTTONDOWN_callback = std::forward<decltype(F)>(F); return; }
 			if constexpr (MSG == win_cpp::WindowMessage::WM_RBUTTONUP) { WM_RBUTTONUP_callback = std::forward<decltype(F)>(F); return; }
@@ -897,16 +908,6 @@ export namespace win_cpp {
 	using win::f::PostQuitMessage;
 	
 	template<typename T> concept is_pointer = std::is_pointer_v<T>;
-
-#if 0
-	using win::f::GetPropW; // REMOVE IT
-	using win::t::UINT; // REMOVE IT
-	using win::t::WPARAM; // REMOVE IT
-	using win::t::LPARAM; // REMOVE IT
-	using win::t::LRESULT; // REMOVE IT
-#endif
-	using win::t::HWND; // REMOVE IT
-	using win::t::HINSTANCE; // REMOVE IT
 
 	win::t::LRESULT windowProc(win::t::HWND hWnd, win::t::UINT uMsg, win::t::WPARAM wParam, win::t::LPARAM lParam) {
 		return win::f::DefWindowProcW(static_cast<win::t::HWND>(hWnd), uMsg, wParam, lParam);
@@ -1133,8 +1134,6 @@ export namespace win_cpp {
 		std::copy(data.begin(), data.end(), ppvBits);
 		return handle;
 	}
-
-
 
 	struct BitmapColorHandle {
 		using type = win::t::HBITMAP;
@@ -1383,7 +1382,7 @@ export namespace win_cpp {
 			win::t::WNDPROC wnd_proc = win_cpp::windowProc;
 
 		public:
-			win::e::WindowClassStyle window_style;
+			WindowClassStyle window_style;
 			StandardCursors cursor_style;
 			std::wstring_view ClassName;
 			LR_Flags lr_flag;
@@ -2323,6 +2322,46 @@ export namespace win_cpp {
 			RectRegion(long x1, long y1, long x2, long y2) : region(win::f::CreateRectRgn(x1, y1, x2, y2)) {}
 			~RectRegion() { win::f::DeleteObject(region); }
 	};
+
+	struct PaintData {
+		private:
+			win::t::HWND hwnd;
+			win::t::PAINTSTRUCT ps;
+			win::t::HDC hdc;
+
+		public:
+			PaintData() = delete;
+			PaintData(const PaintData&) = delete;
+			PaintData& operator=(const PaintData&) = delete;
+#if 0
+			PaintContext(const win_cpp::Window& window)
+				: hwnd(win_cpp::Window::type(window))
+				, ps({})
+				, hdc(win::f::BeginPaint(hwnd, &ps))
+			{}
+#endif			
+			PaintData(win::t::HWND hwnd)
+				: hwnd(hwnd)
+				, ps({})
+				, hdc(win::f::BeginPaint(hwnd, &ps))
+			{}
+
+			win_cpp::Rect get_visible_rect() {
+				return win_cpp::Rect(
+					ps.rcPaint.left,
+					ps.rcPaint.top,
+					ps.rcPaint.right,
+					ps.rcPaint.bottom);
+			}
+
+			win_cpp::PaintContext get_paint_context() {
+				return win_cpp::PaintContext(hdc);
+			}
+
+			~PaintData() {
+				win::f::EndPaint(hwnd, &ps);
+			}
+	};
 	
 	void DwmEnableBlurBehindWindow(
 		const Window& window,
@@ -2568,6 +2607,14 @@ export namespace win_cpp {
 			}
 	};
 
+	void FillRect(const PaintContext& ctx, const Rect& rect, unsigned color) {
+		win::t::HDC hdc = win_cpp::PaintContext::type(ctx);
+		win::t::RECT r = win_cpp::Rect::type(rect);
+		win::t::HBRUSH hBrush = win::f::CreateSolidBrush(color);
+		win::f::FillRect(hdc, &r, hBrush);
+		win::f::DeleteObject(hBrush);
+	}
+
 	unsigned get_SPI_GETMOUSETRAILS() {
 		unsigned mouseTrailSize = 0;
 		win_cpp::SystemParametersInfoUnicode(win_cpp::SystemParametersInfoValues::SPI_GETMOUSETRAILS, 0, &mouseTrailSize, 0);
@@ -2616,7 +2663,7 @@ export namespace win_cpp {
 					}	else {
 						break;
 					}
-	#endif 
+	#endif
 				}
 				case win_cpp::WindowMessage::WM_CHANGECBCHAIN: {  auto res = std::invoke(WM_CHANGECBCHAIN_callback);  if(res.has_value()) { return res.value(); } else { break; } }
 				case win_cpp::WindowMessage::WM_CHANGEUISTATE: {  auto res = std::invoke(WM_CHANGEUISTATE_callback);  if(res.has_value()) { return res.value(); } else { break; } }
@@ -2922,7 +2969,18 @@ export namespace win_cpp {
 				case win_cpp::WindowMessage::WM_NOTIFY: {  auto res = std::invoke(WM_NOTIFY_callback);  if(res.has_value()) { return res.value(); } else { break; } }
 				case win_cpp::WindowMessage::WM_NOTIFYFORMAT: {  auto res = std::invoke(WM_NOTIFYFORMAT_callback);  if(res.has_value()) { return res.value(); } else { break; } }
 				case win_cpp::WindowMessage::WM_NULL: {  auto res = std::invoke(WM_NULL_callback);  if(res.has_value()) { return res.value(); } else { break; } }
-				case win_cpp::WindowMessage::WM_PAINT: {  auto res = std::invoke(WM_PAINT_callback);  if(res.has_value()) { return res.value(); } else { break; } }
+				case win_cpp::WindowMessage::WM_PAINT: {
+					win_cpp::PaintData data(hWnd);
+					auto ctx = data.get_paint_context();
+					auto rect = data.get_visible_rect();
+					auto res = std::invoke(WM_PAINT_callback, ctx, std::cref(rect));
+					if(res.has_value()) {
+						return res.value();
+					} else {
+						break;
+					}
+					
+				}
 				case win_cpp::WindowMessage::WM_PAINTCLIPBOARD: {  auto res = std::invoke(WM_PAINTCLIPBOARD_callback);  if(res.has_value()) { return res.value(); } else { break; } }
 				case win_cpp::WindowMessage::WM_PAINTICON: {  auto res = std::invoke(WM_PAINTICON_callback);  if(res.has_value()) { return res.value(); } else { break; } }
 				case win_cpp::WindowMessage::WM_PALETTECHANGED: {  auto res = std::invoke(WM_PALETTECHANGED_callback);  if(res.has_value()) { return res.value(); } else { break; } }
@@ -2948,7 +3006,7 @@ export namespace win_cpp {
 				case win_cpp::WindowMessage::WM_POINTERWHEEL: {  auto res = std::invoke(WM_POINTERWHEEL_callback);  if(res.has_value()) { return res.value(); } else { break; } }
 				case win_cpp::WindowMessage::WM_POWER: {  auto res = std::invoke(WM_POWER_callback);  if(res.has_value()) { return res.value(); } else { break; } }
 				case win_cpp::WindowMessage::WM_POWERBROADCAST: {  auto res = std::invoke(WM_POWERBROADCAST_callback);  if(res.has_value()) { return res.value(); } else { break; } }
-				case win_cpp::WindowMessage::WM_PRINT: {  auto res = std::invoke(WM_PRINT_callback);  if(res.has_value()) { return res.value(); } else { break; } }
+				case win_cpp::WindowMessage::WM_PRINT: { auto res = std::invoke(WM_PRINT_callback); if(res.has_value()) { return res.value(); } else { break; } }
 				case win_cpp::WindowMessage::WM_PRINTCLIENT: {  auto res = std::invoke(WM_PRINTCLIENT_callback);  if(res.has_value()) { return res.value(); } else { break; } }
 				case win_cpp::WindowMessage::WM_QUERYDRAGICON: {  auto res = std::invoke(WM_QUERYDRAGICON_callback);  if(res.has_value()) { return res.value(); } else { break; } }
 				case win_cpp::WindowMessage::WM_QUERYENDSESSION: {  auto res = std::invoke(WM_QUERYENDSESSION_callback);  if(res.has_value()) { return res.value(); } else { break; } }

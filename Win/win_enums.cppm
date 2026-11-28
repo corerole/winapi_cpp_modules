@@ -2,7 +2,6 @@
 
 export module win_enums;
 import std;
-// import win;
 export import flags;
 export import win_hid_usage;
 
@@ -22,6 +21,7 @@ enum class Window_Style : unsigned { // 0b 00000000 00000000 00000000 00000000
 	WS_CLIPCHILDREN			= 0x02000000,
 	WS_CLIPSIBLINGS			= 0x04000000,
 	WS_DISABLED					= 0x08000000,
+	WS_VISIBLE 					= 0x10000000,
 	WS_MINIMIZE					= 0x20000000,
 	WS_ICONIC						= WS_MINIMIZE,
 	WS_CHILD						= 0x40000000,
@@ -36,7 +36,7 @@ enum class Window_Style : unsigned { // 0b 00000000 00000000 00000000 00000000
 };
 template<> struct flags::FlagTraits<Window_Style> {
 	static constexpr bool isBitmask = true;
-	static constexpr AllFlags<Window_Style> allFlags{ .m_mask = 0xEFDF0000 };
+	static constexpr AllFlags<Window_Style> allFlags{ .m_mask = 0xFFDF0000 };
 };
 
 
@@ -373,6 +373,7 @@ enum class WindowMessage {
 	WM_SETTINGCHANGE					= WM_WININICHANGE
 };
 
+// WindowClassStyle
 enum class CS {
 	CS_VREDRAW = 0x0001,
 	CS_HREDRAW = 0x0002,

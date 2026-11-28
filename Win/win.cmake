@@ -14,3 +14,5 @@ target_sources(
 		"${WIN_DIR}/win_hid_usage.cppm"
 		"${WIN_DIR}/windowProc.cppm"
 )
+
+target_link_libraries(${PROJECT_NAME} PRIVATE dwmapi Shcore)
